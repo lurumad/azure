@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ManagedIdentity.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,15 @@ namespace ManagedIdentity
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args)
+                .Build()
+                .MigrateDbContext<CatalogDbContext>(context =>
+                {
+                    context.Products.Add(new Product { Name = "HP ZBook" });
+                    context.Products.Add(new Product { Name = "HP ZBook 2" });
+                    context.Products.Add(new Product { Name = "HP ZBook 3" });
+                    context.SaveChanges();
+                }).Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

@@ -5,14 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ManagedIdentity.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagedIdentity.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly CatalogDbContext dbContext;
+
+        public HomeController(CatalogDbContext dbContext)
         {
-            return View();
+            this.dbContext = dbContext;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            return View(await dbContext.Products.ToListAsync());
         }
 
         public IActionResult Privacy()

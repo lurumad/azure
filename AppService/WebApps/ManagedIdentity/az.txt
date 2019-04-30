@@ -1,0 +1,15 @@
+az group create --name "mi-dev-rg" --location "West Europe"
+az appservice plan create --name "mi-dev-asp01" --resource-group "mi-dev-rg" --sku S1
+az webapp create --name "mi-dev-wa01" --resource-group "mi-dev-rg" --plan "mi-dev-asp01"
+az webapp identity assign --resource-group "mi-dev-rg" --name "mi-dev-wa01"
+az sql server create --resource-group "mi-dev-rg" -n "mi-dev-sql" -u "midevsqladmin" -p "Pass@word1!" -l "West Europe"
+az ad sp show --id ""
+az sql server ad-admin create --resource-group "mi-dev-rg" --server-name "mi-dev-sql" --display-name "midevsqladmin2" --object-id ""
+az webapp config connection-string set --resource-group "mi-dev-rg" --name "mi-dev-wa01" --settings SqlServerConnection='Server=tcp:mi-dev-sql.database.windows.net,1433;Database=Catalog;' --connection-string-type SQLAzure
+groupid=$(az ad group create --display-name AzureSQLDBAccessGroup --mail-nickname AzureSQLDBAccessGroup --query objectId --output tsv)
+msiobjectid=$(az webapp identity show --resource-group "mi-dev-rg" --name "mi-dev-wa01" --query principalId --output tsv)
+az ad group member add --group $groupid --member-id $msiobjectid
+az ad group member list -g $groupid
+az group delete --name "mi-dev-rg"
+
+
